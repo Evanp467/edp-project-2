@@ -1,5 +1,4 @@
 import express from "express";
-// import { promises as fs } from "fs";
 import { MongoClient, ObjectId } from "mongodb";
 import dotenv from "dotenv";
 import cors from "cors";
@@ -116,16 +115,92 @@ app.get("/api/films/:id/characters", async (req, res) => {
   try {
     const id = parseInt(req.params.id);
     const client = await MongoClient.connect(url);
-    const db = client.db(dbName);
-    const filmsCollection = db.collection(collectionNameFilms);
-    const films = await filmsCollection.findOne({ id: id });
+    const db = client.db(dbName);    
+    const charactersCollection = db.collection(collectionNameFilmsCharacters);
+    const characters = await charactersCollection.find({ film_id : id }).toArray();
 
-    const charactersCollection = db.collection(collectionNameCharacters);
-    const characters = await charactersCollection.find({ id: id }).toArray();
     if (characters) {
-      res.status(200).json(result);
+      res.status(200).json(characters);
     } else {
-      res.status(404).send("Planet not found");
+      res.status(404).send("Characters not found");
+    }
+  } catch (err) {
+    console.error("Error:", err);
+    res.status(500).send("No data");
+  }
+});
+
+app.get("/api/films/:id/planets", async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const client = await MongoClient.connect(url);
+    const db = client.db(dbName);
+    const planetsCollection = db.collection(collectionNameFilmsPlanets);
+    const planets = await planetsCollection.find({ film_id: id }).toArray();
+
+    if (planets) {
+      res.status(200).json(planets);
+    } else {
+      res.status(404).send("Planets not found");
+    }
+  } catch (err) {
+    console.error("Error:", err);
+    res.status(500).send("No data");
+  }
+});
+
+app.get("/api/characters/:id/films", async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const client = await MongoClient.connect(url);
+    const db = client.db(dbName);
+    const charactersCollection = db.collection(collectionNameFilmsCharacters);
+    const films = await charactersCollection
+      .find({ character_id: id })
+      .toArray();
+
+    if (films) {
+      res.status(200).json(films);
+    } else {
+      res.status(404).send("Films not found");
+    }
+  } catch (err) {
+    console.error("Error:", err);
+    res.status(500).send("No data");
+  }
+});
+
+app.get("/api/planets/:id/films", async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const client = await MongoClient.connect(url);
+    const db = client.db(dbName);
+    const filmsPlanetsCollection = db.collection(collectionNameFilmsPlanets);
+    const films = await filmsPlanetsCollection.find({planet_id : id}).toArray();
+
+    if (films) {
+      res.status(200).json(films);
+    } else {
+      res.status(404).send("Films not found");
+    }
+  } catch (err) {
+    console.error("Error:", err);
+    res.status(500).send("No data");
+  }
+});
+
+app.get("/api/planets/:id/characters", async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const client = await MongoClient.connect(url);
+    const db = client.db(dbName);
+    const charactersCollection = db.collection(collectionNameCharacters);
+    const characters = await charactersCollection.find({ homeworld : id }).toArray();
+
+    if (characters) {
+      res.status(200).json(characters);
+    } else {
+      res.status(404).send("Characters not found");
     }
   } catch (err) {
     console.error("Error:", err);
